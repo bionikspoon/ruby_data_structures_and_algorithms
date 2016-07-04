@@ -62,3 +62,23 @@ You can think of the board as having 2-dimensional coordinates.  Your function w
 
 - Code: [lib/knight_moves.rb](lib/knight_moves.rb)
 - Tests: [spec/lib/knight_moves_spec.rb](spec/lib/knight_moves_spec.rb)
+
+## Instructions
+
+### Install
+
+```sh
+$ bundle install
+```
+
+### Test Once
+
+```sh
+$ bundle exec rake spec
+```
+
+### Test Watch
+
+```sh
+$ bundle exec guard
+```
