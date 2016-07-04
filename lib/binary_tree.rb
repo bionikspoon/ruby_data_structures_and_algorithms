@@ -9,8 +9,6 @@ class Node
   end
 
   def fork(value)
-    # puts [value, @value].to_s
-
     if value <= @value
       if @left === nil
         @left = Node.new value, up: self
@@ -79,15 +77,15 @@ def depth_first_search(target, tree)
     node = stack.pop
     next if visited.include? node
     return node if node.value == target
-    visited << node
 
+    visited << node
     stack.concat [node.up, node.left, node.right]
                      .compact
                      .reject { |n| visited.include? n }
   end
 end
 
-def dfs_rec target, node, visited: []
+def dfs_rec(target, node, visited: [])
   return node if node.value == target
   visited << node
   [node.up, node.left, node.right]
