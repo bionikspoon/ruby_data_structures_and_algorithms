@@ -1,6 +1,10 @@
 class Node
   attr_accessor :value, :up, :left, :right
 
+# @param [Node] value
+# @param [Node] up
+# @param [Node] left
+# @param [Node] right
   def initialize(value=nil, up: nil, left: nil, right: nil)
     @value = value
     @up = up
