@@ -48,7 +48,8 @@ describe BinaryTree, :include_BinaryTree do
     end
 
     describe '#initialize' do
-      include_context :empty do
+      context 'without values' do
+        include_context :empty
         it { should be_truthy }
         it { should respond_to :value }
         it { should respond_to :left }
@@ -120,7 +121,9 @@ describe BinaryTree, :include_BinaryTree do
         its(:to_a) { should eq (0..99).to_a }
         its('to_a.length') { should be 100 }
       end
+
     end
+
 
     describe '#include?' do
       include_context :empty
@@ -155,7 +158,6 @@ describe BinaryTree, :include_BinaryTree do
       its(:is_leaf?) { should be false }
       its('left.is_leaf?') { should be true }
       its('right.is_leaf?') { should be true }
-
     end
 
 
@@ -168,6 +170,12 @@ describe BinaryTree, :include_BinaryTree do
 
       describe '#max' do
         its(:max) { should be 5 }
+      end
+    end
+
+    describe 'aliases' do
+      context ':push, :<<' do
+        it { expect(subject.method(:push)).to eq subject.method(:<<) }
       end
     end
   end
@@ -187,6 +195,12 @@ describe BinaryTree, :include_BinaryTree do
       its(:include?) { should be false }
       its(:inspect) { should eql '{#}' }
       its(:to_s) { should eql '{#}' }
+    end
+
+    describe 'aliases' do
+      context ':push, :<<' do
+        it { expect(subject.method(:push)).to eq subject.method(:<<) }
+      end
     end
   end
 
