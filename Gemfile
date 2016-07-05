@@ -8,3 +8,5 @@ gem 'guard-rspec', require: false
 gem 'fuubar'
 gem 'pry'
 gem 'simplecov', :require => false
+gem 'rubocop', require: false
+gem 'guard-rubocop'
