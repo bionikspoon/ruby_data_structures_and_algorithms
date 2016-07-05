@@ -37,14 +37,13 @@ end
 describe BinaryTree, :include_BinaryTree do
   describe BinaryTree::Node do
     shared_context(:empty) { subject { BinaryTree::Node.new } }
-    shared_context(:words) { subject { BinaryTree::Node.new 'value', up: 'up', left: 'left', right: 'right' } }
+    shared_context(:words) do
+      subject { BinaryTree.factory(%w[value left right], shuffle: false) }
+    end
     shared_context(:numbers) do
+
       subject do
-        node = BinaryTree::Node.new(4)
-        left = BinaryTree::Node.new(3, up: node)
-        right = BinaryTree::Node.new(5, up: node)
-        node.left, node.right = left, right
-        node
+        BinaryTree.factory([4, 3, 5], shuffle: false)
       end
     end
 
@@ -52,7 +51,6 @@ describe BinaryTree, :include_BinaryTree do
       include_context :empty do
         it { should be_truthy }
         it { should respond_to :value }
-        it { should respond_to :up }
         it { should respond_to :left }
         it { should respond_to :right }
       end
@@ -60,9 +58,13 @@ describe BinaryTree, :include_BinaryTree do
       context 'with values' do
         include_context :words
         its(:value) { should eql 'value' }
-        its(:up) { should eql 'up' }
-        its(:left) { should eql 'left' }
-        its(:right) { should eql 'right' }
+        its('left.value') { should eql 'left' }
+        its('left.right.value') { should eql 'right' }
+      end
+      context 'with numbers' do
+        include_context :numbers
+        its('left.value') { should eql 3 }
+        its('right.value') { should eql 5 }
       end
     end
 
@@ -123,7 +125,7 @@ describe BinaryTree, :include_BinaryTree do
     describe '#include?' do
       include_context :empty
       context 'a few items' do
-        before(:each) { subject.push(3).push(5).push(1).push(4) }
+        before(:each) { subject.push(3).push(5).push(1).push(4).push(3) }
         it { expect(subject.include?(15)).to be false }
         it { expect(subject.include?(3)).to be true }
         it { expect(subject.include?(5)).to be true }
@@ -153,7 +155,6 @@ describe BinaryTree, :include_BinaryTree do
       its(:is_leaf?) { should be false }
       its('left.is_leaf?') { should be true }
       its('right.is_leaf?') { should be true }
-      its('left.up.is_leaf?') { should be false }
 
     end
 
@@ -176,7 +177,6 @@ describe BinaryTree, :include_BinaryTree do
     describe '#initialize' do
       include_context :empty
       its(:value) { should be_nil }
-      its(:up) { should be subject }
       its(:left) { should be subject }
       its(:right) { should be subject }
       its(:to_a) { should eq [] }

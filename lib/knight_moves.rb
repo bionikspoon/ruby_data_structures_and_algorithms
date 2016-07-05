@@ -64,13 +64,12 @@ module BinaryTree
   class EmptyNode
     include Enumerable
 
-    attr_reader :right, :value, :left, :up
+    attr_reader :right, :value, :left
 
     def initialize(*)
       @value = nil
       @left = self
       @right = self
-      @up = self
     end
 
     def to_a
@@ -98,7 +97,11 @@ module BinaryTree
     end
 
     def to_s
-      inspect
+      self.inspect
+    end
+
+    def is_leaf?
+      nil
     end
   end
 
@@ -107,11 +110,10 @@ module BinaryTree
   class Node
     include Enumerable
 
-    attr_accessor :right, :value, :up, :left
+    attr_accessor :right, :value, :left
 
-    def initialize(value=nil, up: BinaryTree::EMPTY_NODE, left: BinaryTree::EMPTY_NODE, right: BinaryTree::EMPTY_NODE)
+    def initialize(value=nil, left: BinaryTree::EMPTY_NODE, right: BinaryTree::EMPTY_NODE)
       @value = value
-      @up = up
       @left = left
       @right = right
     end
@@ -122,6 +124,10 @@ module BinaryTree
       self.each_node do |node|
         yield node.value
       end
+    end
+
+    def to_a
+      left.to_a + [@value] + right.to_a
     end
 
     def each_node
@@ -136,18 +142,19 @@ module BinaryTree
       each_node.to_a
     end
 
-    def push(value)
-      if @up === BinaryTree::EMPTY_NODE
-        @value = value
-        @up = EmptyNode.new
+    def push(v)
+      if @value.nil?
+        @value = v
         return self
       end
-
-      case self.value <=> value
+      # noinspection RubyCaseWithoutElseBlockInspection
+      case self.value <=> v
         when -1 then
-          self.push_right(value)
-        else
-          self.push_left(value)
+          self.push_right(v)
+        when 1 then
+          self.push_left(v)
+        when 0 then
+          false
       end
       self
     end
@@ -167,7 +174,7 @@ module BinaryTree
     end
 
     def <=>(other)
-      [@value, @up] <=> [other.value, other.up]
+      @value <=> other.value
     end
 
     def inspect
@@ -180,13 +187,13 @@ module BinaryTree
 
     protected
     def push_left(v)
-      @left.push(v) || (@left = Node.new(v, up: self))
-      self.up || self
+      @left.push(v) || (@left = Node.new(v))
+      self
     end
 
     def push_right(v)
-      @right.push(v) || (@right = Node.new(v, up: self))
-      self.up || self
+      @right.push(v) || (@right = Node.new(v))
+      self
     end
 
     def is_leaf?
@@ -196,7 +203,9 @@ module BinaryTree
 
   def BinaryTree.factory(items, shuffle: true)
     tree = Node.new
-    (shuffle ? items.to_a.shuffle : items).each { |item| tree << item }
+    (shuffle ? items.to_a.shuffle : items).each do |item|
+      tree << item
+    end
     tree
   end
 end
