@@ -5,7 +5,7 @@ require_relative 'knight_moves'
 
 test_data = []
 
-500000.times { test_data << (rand 50000) }
+50000.times { test_data << (rand 500000) }
 
 def array_factory(items)
   list = []
