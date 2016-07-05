@@ -91,27 +91,25 @@ describe BinaryTree do
       it { expect(subject <=> Node.new(3)).to be 1 }
     end
 
-    describe '#insert' do
+    xdescribe '#push' do
       include_context :empty
       context '1 item' do
-        before { subject.insert (5) }
+        before { subject.push (5) }
         its(:value) { should be 5 }
       end
       context '2 items' do
         before do
-          subject.insert(5)
-          subject.insert(4)
+          subject.push(5)
+          subject.push(4)
         end
         its('left.value') { should be 4 }
-
       end
-
-
-      it "should keep items sorted" do
-        subject.insert(5).insert(4).insert(7).insert(6)
-
-        expect(subject)
-
+      context 'several items' do
+        before do
+          subject.push(5).push(4).push(7).push(6)
+          puts subject
+        end
+        its(:to_a) { should eq [4, 5, 6, 7] }
       end
     end
 
@@ -129,17 +127,19 @@ describe BinaryTree do
     end
   end
   describe EmptyNode do
-    shared_context(:empty) { subject { EmptyNode.new } }
+    shared_context(:empty) { subject { EMPTY_NODE } }
     describe '#initialize' do
       include_context :empty
       its(:value) { should be_nil }
       its(:up) { should be subject }
       its(:left) { should be subject }
       its(:right) { should be subject }
-      its(:up?) { should be false }
-      its(:left?) { should be false }
-      its(:right?) { should be false }
-      its(:insert) { should be false }
+      its(:to_a) { should eq [] }
+      its(:push) { should be false }
+      its(:<<) { should be false }
+      its(:each) { should be_nil }
+      its(:each_node) { should be_nil }
+      its(:include?) { should be false }
       its(:inspect) { should eql '{BinaryTree::EmptyNode}' }
       its(:to_s) { should eql '{BinaryTree::EmptyNode}' }
     end

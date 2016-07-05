@@ -60,43 +60,70 @@ end
 
 
 module BinaryTree
+
+  class EmptyNode
+    include Enumerable
+
+    attr_reader :right, :value, :left, :up
+
+    def initialize(*)
+      @value = nil
+      @left = self
+      @right = self
+      @up = self
+    end
+
+    def to_a
+      []
+    end
+
+    def push(*)
+      false
+    end
+
+    alias_method :<<, :push
+
+    def each
+      enum_for :each if block_given?
+    end
+
+    def each_node
+      enum_for :each_node if block_given?
+    end
+
+    def include?(*)
+      false
+    end
+
+    def inspect
+      "{#{self.class}}"
+    end
+
+    def to_s
+      inspect
+    end
+  end
+
+  EMPTY_NODE = EmptyNode.new
+
   class Node
     include Enumerable
 
     attr_accessor :right, :value, :up, :left
 
-    def initialize(value=nil, up: nil, left: nil, right: nil)
+    def initialize(value=nil, up: BinaryTree::EMPTY_NODE, left: BinaryTree::EMPTY_NODE, right: BinaryTree::EMPTY_NODE)
       @value = value
-      @up = up || EmptyNode.new
-      @left = left || EmptyNode.new
-      @right = right || EmptyNode.new
+      @up = up
+      @left = left
+      @right = right
     end
 
     def each
       return enum_for :each unless block_given?
 
-      left.each { |node| yield node }
-      yield value
-      right.each { |node| yield node }
-    end
-
-    def insert value, up: nil
-      up ||= self.class.new up
-
-      unless up?
-        @value = value
-        @up = up
-        return self
+      self.each_node do |node|
+        yield node.value
       end
-
-      case self.value <=> value
-        when -1 then
-          insert_right(value)
-        else
-          insert_left(value)
-      end
-
-      self.up || self
     end
 
     def each_node
@@ -111,8 +138,38 @@ module BinaryTree
       each_node.to_a
     end
 
-    def <=> other
-      [value, up] <=> [other.value, other.up]
+    def push(value)
+      if @up.nil?
+        @value = value
+        return self
+      end
+
+      case self.value <=> value
+        when -1 then
+          self.push_right(value)
+        else
+          self.push_left(value)
+      end
+      self
+    end
+
+    alias_method :<<, :push
+
+    def include?(value)
+      case @value <=> value
+        when -1 then
+          right.include?(value)
+        when 1 then
+          left.include?(value)
+        when 0 then
+          true
+        else
+          false
+      end
+    end
+
+    def <=>(other)
+      [@value, @up] <=> [other.value, other.up]
     end
 
     def inspect
@@ -120,77 +177,22 @@ module BinaryTree
     end
 
     def to_s
-      "{Node:#{value}:#{@left.value}:#{@right.value}:#{@up.value}}"
+      "{Node:#{value}:#{@left.value}:#{@right.value}"
     end
 
     protected
-    def insert_left(value)
-      left.insert(value) or self.left = Node.new(value, up: self)
+    def push_left(v)
+      @left.push(v) || (@left = Node.new(v, up: self))
+      self.up || self
     end
 
-    def insert_right(value)
-      right.insert(value) or self.right = Node.new(value, up: self)
+    def push_right(v)
+      @right.push(v) || (@right = Node.new(v, up: self))
+      self.up || self
     end
 
     def is_leaf?
-      !(left? or right?)
-    end
-
-    def up?
-      up.is_a? self.class
-    end
-
-    def left?
-      left.is_a? self.class
-    end
-
-    def right?
-      right.is_a? self.class
-    end
-
-  end
-  class EmptyNode
-    include Enumerable
-
-    attr_reader :right, :value, :left, :up
-
-    def initialize(*)
-      @value = nil
-      @left = self
-      @right = self
-      @up = self
-    end
-
-    def each
-      enum_for :each unless block_given?
-    end
-
-    def each_node
-      enum_for :each_node unless block_given?
-    end
-
-    def insert(*)
-      false
-    end
-
-    def up?
-      false
-    end
-
-    def left?
-      false
-    end
-
-    def right?
-      false
-    end
-
-    def inspect
-      "{#{self.class}}"
-    end
-
-    def to_s
-      inspect
+      @left.value.nil? or @right.value.nil?
     end
   end
 end
