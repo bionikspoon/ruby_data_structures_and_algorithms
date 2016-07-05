@@ -2,7 +2,7 @@ module Chess
   DIM_X, DIM_Y = [(0..7).to_a] * 2
   NAME = Hash[DIM_Y.product(DIM_X).collect { |y, x| [[y, x], ('A'.upto('H').to_a[x] + 8.downto(1).to_a[y].to_s).to_sym] }]
 
-  def to_name(y, x)
+  def Chess.to_name(y, x)
     NAME[[y, x]]
   end
 
@@ -20,7 +20,7 @@ module Chess
                            'down=': [cell.y + 1, cell.x],
                            'left=': [cell.y, cell.x - 1], }
         adjacent_cells
-            .collect { |k, v| [k, to_name(*v)] }
+            .collect { |k, v| [k, Chess::to_name(*v)] }
             .reject { |_, v| v.nil? }
             .collect { |k, v| [k, @cells.find { |c| c.name == v }] }
             .each { |k, v| cell.send(k, v) }
@@ -37,7 +37,7 @@ module Chess
       @y = y
       @x = x
       @value = value
-      @name = name || to_name(@y, @x)
+      @name = name || Chess::to_name(@y, @x)
       @up, @right, @down, @left = [nil]*4
     end
 
@@ -62,7 +62,7 @@ end
 module BinaryTree
 
   class EmptyNode
-    include Enumerable
+    include Enumerable, BinaryTree
 
     attr_reader :right, :value, :left, :up
 
@@ -84,11 +84,9 @@ module BinaryTree
     alias_method :<<, :push
 
     def each
-      enum_for :each if block_given?
     end
 
     def each_node
-      enum_for :each_node if block_given?
     end
 
     def include?(*)
@@ -96,7 +94,7 @@ module BinaryTree
     end
 
     def inspect
-      "{#{self.class}}"
+      "{#}"
     end
 
     def to_s
@@ -139,8 +137,9 @@ module BinaryTree
     end
 
     def push(value)
-      if @up.nil?
+      if @up === BinaryTree::EMPTY_NODE
         @value = value
+        @up = EmptyNode.new
         return self
       end
 
@@ -156,6 +155,7 @@ module BinaryTree
     alias_method :<<, :push
 
     def include?(value)
+      # noinspection RubyCaseWithoutElseBlockInspection
       case @value <=> value
         when -1 then
           right.include?(value)
@@ -163,8 +163,6 @@ module BinaryTree
           left.include?(value)
         when 0 then
           true
-        else
-          false
       end
     end
 
@@ -173,11 +171,11 @@ module BinaryTree
     end
 
     def inspect
-      "{Node:#{@value}:#{@left.inspect}:#{@right.inspect}:#{@up.inspect}}"
+      "{Node:#{@value}:#{@left.inspect}:#{@right.inspect}}"
     end
 
     def to_s
-      "{Node:#{value}:#{@left.value}:#{@right.value}"
+      "{Node:#{value}:#{@left.value}:#{@right.value}}"
     end
 
     protected

@@ -1,44 +1,48 @@
 require 'knight_moves'
-include Chess, BinaryTree
 
 describe Chess do
-  describe Board do
-    context Board.new do
+  describe Chess::Board do
+    context Chess::Board.new do
       its('cells.length') { should eq 64 }
     end
   end
 
-  describe Cell do
-    context '#initialize' do
-      subject { Cell.new y: 4, x: 3 }
+  describe Chess::Cell do
+    describe '#initialize' do
+      subject { Chess::Cell.new y: 4, x: 3 }
       its(:value) { should be_nil }
       it { should respond_to :name, :x, :y, :value, :up, :down, :left, :right }
       its(:name) { should eq :D4 }
       its(:x) { should be 3 }
       its(:y) { should be 4 }
     end
+
+    describe '#inspect' do
+      subject { Chess::Cell.new y: 4, x: 3 }
+      its(:inspect) { should eq '{*: <D4>}' }
+    end
   end
 
-  describe NAME do
+  describe Chess::NAME do
     its([[0, 0]]) { should be :A8 }
     its([[3, 4]]) { should be :E5 }
     its([[9, 9]]) { should be_nil }
   end
 
   describe :TO_NAME do
-    it("should convert (y,x) to cell name") { expect(to_name(4, 3)).to be :D4 }
+    it("should convert (y,x) to cell name") { expect(Chess::to_name(4, 3)).to be :D4 }
   end
 end
 
-describe BinaryTree do
-  describe Node do
-    shared_context(:empty) { subject { Node.new } }
-    shared_context(:words) { subject { Node.new 'value', up: 'up', left: 'left', right: 'right' } }
+describe BinaryTree, :include_BinaryTree do
+  describe BinaryTree::Node do
+    shared_context(:empty) { subject { BinaryTree::Node.new } }
+    shared_context(:words) { subject { BinaryTree::Node.new 'value', up: 'up', left: 'left', right: 'right' } }
     shared_context(:numbers) do
       subject do
-        node = Node.new(4)
-        left = Node.new(3, up: node)
-        right = Node.new(5, up: node)
+        node = BinaryTree::Node.new(4)
+        left = BinaryTree::Node.new(3, up: node)
+        right = BinaryTree::Node.new(5, up: node)
         node.left, node.right = left, right
         node
       end
@@ -65,6 +69,8 @@ describe BinaryTree do
     describe '#each' do
       include_context :numbers
       its('each.to_a') { should eq [3, 4, 5] }
+      its(:each) { should be_an_instance_of Enumerator }
+      it { expect { |b| subject.each(&b) }.to yield_successive_args 3, 4, 5 }
     end
 
     describe '#each_node' do
@@ -77,26 +83,15 @@ describe BinaryTree do
       its(:nodes) { should eq [subject.left, subject, subject.right] }
     end
 
-    describe '#is_leaf?' do
-      include_context :numbers
-      its(:is_leaf?) { should be false }
-      its('left.is_leaf?') { should be true }
-      its('right.is_leaf?') { should be true }
-      its('left.up.is_leaf?') { should be false }
 
-    end
-
-    describe "#<=>" do
-      include_context :numbers
-      it { expect(subject <=> Node.new(3)).to be 1 }
-    end
-
-    xdescribe '#push' do
+    describe '#push' do
       include_context :empty
+
       context '1 item' do
         before { subject.push (5) }
         its(:value) { should be 5 }
       end
+
       context '2 items' do
         before do
           subject.push(5)
@@ -104,13 +99,62 @@ describe BinaryTree do
         end
         its('left.value') { should be 4 }
       end
-      context 'several items' do
-        before do
-          subject.push(5).push(4).push(7).push(6)
-          puts subject
-        end
+
+      context 'a few items' do
+        before { subject.push(5).push(4).push(7).push(6) }
         its(:to_a) { should eq [4, 5, 6, 7] }
       end
+
+      context '100 items' do
+        before { 100.times { |i| subject << i } }
+        its(:to_a) { should eq (0..99).to_a }
+      end
+
+      context '100 shuffled items' do
+        before do
+          shuffled = (0..99).to_a.shuffle
+          shuffled.each { |i| subject << i }
+        end
+        its(:to_a) { should eq (0..99).to_a }
+        its('to_a.length') { should be 100 }
+      end
+    end
+
+    describe '#include?' do
+      include_context :empty
+      context 'a few items' do
+        before(:each) { subject.push(3).push(5).push(1).push(4) }
+        it { expect(subject.include?(15)).to be false }
+        it { expect(subject.include?(3)).to be true }
+        it { expect(subject.include?(5)).to be true }
+        it { expect(subject.include?(1)).to be true }
+        it { expect(subject.include?(4)).to be true }
+        it { expect(subject.include?(0)).to be false }
+      end
+    end
+
+    describe "#<=>" do
+      include_context :numbers
+      it { expect(subject <=> BinaryTree::Node.new(3)).to be 1 }
+    end
+
+    describe '#inspect' do
+      include_context :numbers
+      its(:inspect) { should eq '{Node:4:{Node:3:{#}:{#}}:{Node:5:{#}:{#}}}' }
+    end
+
+    describe "#to_s" do
+      include_context :numbers
+      its(:to_s) { should eq '{Node:4:3:5}' }
+    end
+
+    describe '#is_leaf?' do
+      include_context :numbers
+      its(:is_leaf?) { should be false }
+      its('left.is_leaf?') { should be true }
+      its('right.is_leaf?') { should be true }
+      its('left.up.is_leaf?') { should be false }
+
     end
 
 
@@ -126,8 +170,9 @@ describe BinaryTree do
       end
     end
   end
-  describe EmptyNode do
-    shared_context(:empty) { subject { EMPTY_NODE } }
+
+  describe BinaryTree::EmptyNode do
+    shared_context(:empty) { subject { BinaryTree::EMPTY_NODE } }
     describe '#initialize' do
       include_context :empty
       its(:value) { should be_nil }
@@ -140,8 +185,8 @@ describe BinaryTree do
       its(:each) { should be_nil }
       its(:each_node) { should be_nil }
       its(:include?) { should be false }
-      its(:inspect) { should eql '{BinaryTree::EmptyNode}' }
-      its(:to_s) { should eql '{BinaryTree::EmptyNode}' }
+      its(:inspect) { should eql '{#}' }
+      its(:to_s) { should eql '{#}' }
     end
   end
 end

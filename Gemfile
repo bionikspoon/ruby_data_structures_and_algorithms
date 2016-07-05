@@ -7,3 +7,4 @@ gem 'guard'
 gem 'guard-rspec', require: false
 gem 'fuubar'
 gem 'pry'
+gem 'simplecov', :require => false
