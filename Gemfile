@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 source 'https://rubygems.org'
 
 gem 'rake'
@@ -7,6 +8,6 @@ gem 'guard'
 gem 'guard-rspec', require: false
 gem 'fuubar'
 gem 'pry'
-gem 'simplecov', :require => false
+gem 'simplecov', require: false
 gem 'rubocop', require: false
 gem 'guard-rubocop'

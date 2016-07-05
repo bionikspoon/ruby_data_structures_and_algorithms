@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 require 'binary_tree'
 
@@ -31,19 +32,19 @@ describe 'Binary Tree' do
       end
     end
 
-    describe '#is_leaf?' do
+    describe '#leaf?' do
       it 'should exist' do
-        expect(@empty_node).to respond_to :is_leaf?
+        expect(@empty_node).to respond_to :leaf?
       end
 
       it 'should be true if left and right are nil' do
-        expect(@empty_node.is_leaf?).to be true
-
+        expect(@empty_node.leaf?).to be true
       end
 
       it "should be false if left or right aren't nil" do
-        @empty_node.left, @empty_node.right = 1, 2
-        expect(@empty_node.is_leaf?).to be false
+        @empty_node.left = 1
+        @empty_node.right = 2
+        expect(@empty_node.leaf?).to be false
       end
     end
   end
@@ -71,7 +72,7 @@ describe 'Binary Tree' do
     end
 
     it 'should return nil if target not found' do
-      expect(breadth_first_search 500, @tree).to be_nil
+      expect(breadth_first_search(500, @tree)).to be_nil
     end
   end
 
@@ -88,7 +89,7 @@ describe 'Binary Tree' do
     end
 
     it 'should return nil if target not found' do
-      expect(depth_first_search 500, @tree).to be_nil
+      expect(depth_first_search(500, @tree)).to be_nil
     end
   end
 
@@ -105,8 +106,7 @@ describe 'Binary Tree' do
     end
 
     it 'should return nil if target not found' do
-      expect(dfs_rec 500, @tree).to be_nil
+      expect(dfs_rec(500, @tree)).to be_nil
     end
   end
 end
-

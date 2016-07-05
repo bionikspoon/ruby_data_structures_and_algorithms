@@ -1,11 +1,12 @@
+# frozen_string_literal: true
 class Node
   attr_accessor :value, :up, :left, :right
 
-# @param [Node] value
-# @param [Node] up
-# @param [Node] left
-# @param [Node] right
-  def initialize(value=nil, up: nil, left: nil, right: nil)
+  # @param [Node] value
+  # @param [Node] up
+  # @param [Node] left
+  # @param [Node] right
+  def initialize(value = nil, up: nil, left: nil, right: nil)
     @value = value
     @up = up
     @left = left
@@ -13,25 +14,11 @@ class Node
   end
 
   def fork(value)
-    if value <= @value
-      if @left === nil
-        @left = Node.new value, up: self
-        return self
-      else
-        @left.fork value
-      end
-    else
-      if @right === nil
-        @right = Node.new value, up: self
-        return self
-      else
-        @right.fork value
-      end
-    end
+    (value <= @value) ? fork_left(value) : fork_right(value)
   end
 
-  def is_leaf?
-    @left === nil && @right === nil
+  def leaf?
+    @left.nil? && @right.nil?
   end
 
   def inspect
@@ -43,7 +30,23 @@ class Node
   end
 
   def to_s
-    self.inspect
+    inspect
+  end
+
+  protected
+
+  def fork_left(value)
+    return @left.fork value unless @left.nil?
+
+    @left = Node.new value, up: self
+    self
+  end
+
+  def fork_right(value)
+    return @right.fork value unless @right.nil?
+
+    @right = Node.new value, up: self
+    self
   end
 end
 
@@ -67,9 +70,9 @@ def breadth_first_search(target, tree)
     return node if node.value == target
 
     [node.up, node.left, node.right]
-        .compact
-        .reject { |n| visited.include? n }
-        .each { |n| q << n }
+      .compact
+      .reject { |n| visited.include? n }
+      .each { |n| q << n }
   end
 end
 
@@ -84,8 +87,8 @@ def depth_first_search(target, tree)
 
     visited << node
     stack.concat [node.up, node.left, node.right]
-                     .compact
-                     .reject { |n| visited.include? n }
+      .compact
+      .reject { |n| visited.include? n }
   end
 end
 
@@ -93,9 +96,9 @@ def dfs_rec(target, node, visited: [])
   return node if node.value == target
   visited << node
   [node.up, node.left, node.right]
-      .compact
-      .reject { |n| visited.include? n }
-      .collect { |n| dfs_rec(target, n, visited: visited) }
-      .reject { |n| n === nil }
-      .first
+    .compact
+    .reject { |n| visited.include? n }
+    .collect { |n| dfs_rec(target, n, visited: visited) }
+    .reject(&:nil?)
+    .first
 end

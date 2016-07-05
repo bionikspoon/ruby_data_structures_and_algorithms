@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'knight_moves'
 
 describe Chess do
@@ -30,7 +31,7 @@ describe Chess do
   end
 
   describe :TO_NAME do
-    it('should convert (y,x) to cell name') { expect(Chess::to_name(4, 3)).to be :D4 }
+    it('should convert (y,x) to cell name') { expect(Chess.to_name(4, 3)).to be :D4 }
   end
 end
 
@@ -38,10 +39,9 @@ describe BinaryTree, :include_BinaryTree do
   describe BinaryTree::Node do
     shared_context(:empty) { subject { BinaryTree::Node.new } }
     shared_context(:words) do
-      subject { BinaryTree.factory(%w[value left right], shuffle: false) }
+      subject { BinaryTree.factory(%w(value left right), shuffle: false) }
     end
     shared_context(:numbers) do
-
       subject do
         BinaryTree.factory([4, 3, 5], shuffle: false)
       end
@@ -86,12 +86,11 @@ describe BinaryTree, :include_BinaryTree do
       its(:nodes) { should eq [subject.left, subject, subject.right] }
     end
 
-
     describe '#push' do
       include_context :empty
 
       context '1 item' do
-        before { subject.push (5) }
+        before { subject.push 5 }
         its(:value) { should be 5 }
       end
 
@@ -121,9 +120,7 @@ describe BinaryTree, :include_BinaryTree do
         its(:to_a) { should eq (0..99).to_a }
         its('to_a.length') { should be 100 }
       end
-
     end
-
 
     describe '#include?' do
       include_context :empty
@@ -153,13 +150,12 @@ describe BinaryTree, :include_BinaryTree do
       its(:to_s) { should eq '{Node:4:3:5}' }
     end
 
-    describe '#is_leaf?' do
+    describe '#leaf?' do
       include_context :numbers
-      its(:is_leaf?) { should be false }
-      its('left.is_leaf?') { should be true }
-      its('right.is_leaf?') { should be true }
+      its(:leaf?) { should be false }
+      its('left.leaf?') { should be true }
+      its('right.leaf?') { should be true }
     end
-
 
     describe 'enum methods' do
       include_context :numbers

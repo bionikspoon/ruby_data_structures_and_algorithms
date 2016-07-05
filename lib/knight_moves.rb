@@ -1,8 +1,9 @@
+# frozen_string_literal: true
 module Chess
   DIM_X, DIM_Y = [(0..7).to_a] * 2
   NAME = Hash[DIM_Y.product(DIM_X).collect { |y, x| [[y, x], ('A'.upto('H').to_a[x] + 8.downto(1).to_a[y].to_s).to_sym] }]
 
-  def Chess.to_name(y, x)
+  def self.to_name(y, x)
     NAME[[y, x]]
   end
 
@@ -18,13 +19,12 @@ module Chess
         adjacent_cells = { 'up=': [cell.y - 1, cell.x],
                            'right=': [cell.y, cell.x + 1],
                            'down=': [cell.y + 1, cell.x],
-                           'left=': [cell.y, cell.x - 1], }
+                           'left=': [cell.y, cell.x - 1] }
         adjacent_cells
-            .collect { |k, v| [k, Chess::to_name(*v)] }
-            .reject { |_, v| v.nil? }
-            .collect { |k, v| [k, @cells.find { |c| c.name == v }] }
-            .each { |k, v| cell.send(k, v) }
-
+          .collect { |k, v| [k, Chess.to_name(*v)] }
+          .reject { |_, v| v.nil? }
+          .collect { |k, v| [k, @cells.find { |c| c.name == v }] }
+          .each { |k, v| cell.send(k, v) }
       end
     end
   end
@@ -37,17 +37,17 @@ module Chess
       @y = y
       @x = x
       @value = value
-      @name = name || Chess::to_name(@y, @x)
-      @up, @right, @down, @left = [nil]*4
+      @name = name || Chess.to_name(@y, @x)
+      @up, @right, @down, @left = [nil] * 4
     end
 
     def inspect
       s = []
-      s << "*: #{to_s}"
-      s << "u: #{@up.to_s}" if @up
-      s << "r: #{@right.to_s}" if @right
-      s << "d: #{@down.to_s}" if @down
-      s << "l: #{@left.to_s}" if @left
+      s << "*: #{self}"
+      s << "u: #{@up}" if @up
+      s << "r: #{@right}" if @right
+      s << "d: #{@down}" if @down
+      s << "l: #{@left}" if @left
       "{#{s.join(', ')}}"
     end
 
@@ -59,7 +59,6 @@ module Chess
 end
 
 module BinaryTree
-
   class EmptyNode
     include Enumerable
 
@@ -79,7 +78,7 @@ module BinaryTree
       false
     end
 
-    alias_method :<<, :push
+    alias << push
 
     def each
     end
@@ -96,10 +95,10 @@ module BinaryTree
     end
 
     def to_s
-      self.inspect
+      inspect
     end
 
-    def is_leaf?
+    def leaf?
       nil
     end
   end
@@ -111,7 +110,7 @@ module BinaryTree
 
     attr_accessor :right, :value, :left
 
-    def initialize(value=nil, left: BinaryTree::EMPTY_NODE, right: BinaryTree::EMPTY_NODE)
+    def initialize(value = nil, left: BinaryTree::EMPTY_NODE, right: BinaryTree::EMPTY_NODE)
       @value = value
       @left = left
       @right = right
@@ -120,7 +119,7 @@ module BinaryTree
     def each
       return enum_for :each unless block_given?
 
-      self.each_node do |node|
+      each_node do |node|
         yield node.value
       end
     end
@@ -147,28 +146,28 @@ module BinaryTree
         return self
       end
       # noinspection RubyCaseWithoutElseBlockInspection
-      case self.value <=> v
-        when -1 then
-          self.push_right(v)
-        when 1 then
-          self.push_left(v)
-        when 0 then
-          false
+      case value <=> v
+      when -1 then
+        push_right(v)
+      when 1 then
+        push_left(v)
+      when 0 then
+        false
       end
       self
     end
 
-    alias_method :<<, :push
+    alias << push
 
     def include?(value)
       # noinspection RubyCaseWithoutElseBlockInspection
       case @value <=> value
-        when -1 then
-          right.include?(value)
-        when 1 then
-          left.include?(value)
-        when 0 then
-          true
+      when -1 then
+        right.include?(value)
+      when 1 then
+        left.include?(value)
+      when 0 then
+        true
       end
     end
 
@@ -185,6 +184,7 @@ module BinaryTree
     end
 
     protected
+
     def push_left(v)
       @left.push(v) || (@left = Node.new(v))
       self
@@ -195,12 +195,12 @@ module BinaryTree
       self
     end
 
-    def is_leaf?
-      @left.value.nil? or @right.value.nil?
+    def leaf?
+      @left.value.nil? || @right.value.nil?
     end
   end
 
-  def BinaryTree.factory(items, shuffle: true)
+  def self.factory(items, shuffle: true)
     tree = Node.new
     (shuffle ? items.to_a.shuffle : items).each do |item|
       tree << item
