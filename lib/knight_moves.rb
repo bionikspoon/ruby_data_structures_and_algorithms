@@ -58,7 +58,6 @@ module Chess
   end
 end
 
-
 module BinaryTree
 
   class EmptyNode
@@ -93,7 +92,7 @@ module BinaryTree
     end
 
     def inspect
-      "{#}"
+      '{#}'
     end
 
     def to_s

@@ -30,7 +30,7 @@ describe Chess do
   end
 
   describe :TO_NAME do
-    it("should convert (y,x) to cell name") { expect(Chess::to_name(4, 3)).to be :D4 }
+    it('should convert (y,x) to cell name') { expect(Chess::to_name(4, 3)).to be :D4 }
   end
 end
 
@@ -135,7 +135,7 @@ describe BinaryTree, :include_BinaryTree do
       end
     end
 
-    describe "#<=>" do
+    describe '#<=>' do
       include_context :numbers
       it { expect(subject <=> BinaryTree::Node.new(3)).to be 1 }
     end
@@ -145,7 +145,7 @@ describe BinaryTree, :include_BinaryTree do
       its(:inspect) { should eq '{Node:4:{Node:3:{#}:{#}}:{Node:5:{#}:{#}}}' }
     end
 
-    describe "#to_s" do
+    describe '#to_s' do
       include_context :numbers
       its(:to_s) { should eq '{Node:4:3:5}' }
     end
