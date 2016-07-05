@@ -61,7 +61,7 @@ describe 'Binary Tree' do
 
   describe '#breadth_first_search' do
     before(:each) do
-      @tree = build_tree (1..100)
+      @tree = build_tree(1..100)
     end
 
     it 'should return target node' do
@@ -78,7 +78,7 @@ describe 'Binary Tree' do
 
   describe '#depth_first_search' do
     before(:each) do
-      @tree = build_tree (1..100)
+      @tree = build_tree(1..100)
     end
 
     it 'should return target node' do
@@ -95,7 +95,7 @@ describe 'Binary Tree' do
 
   describe '#dfs_rec' do
     before(:each) do
-      @tree = build_tree (1..100)
+      @tree = build_tree(1..100)
     end
 
     it 'should return target node' do

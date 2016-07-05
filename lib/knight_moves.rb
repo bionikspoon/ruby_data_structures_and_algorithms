@@ -1,17 +1,21 @@
 # frozen_string_literal: true
+# Chess Board and components
 module Chess
   DIM_X, DIM_Y = [(0..7).to_a] * 2
-  NAME = Hash[DIM_Y.product(DIM_X).collect { |y, x| [[y, x], ('A'.upto('H').to_a[x] + 8.downto(1).to_a[y].to_s).to_sym] }]
+  NAME = Hash[
+    DIM_Y.product(DIM_X).collect { |y, x| [[y, x], ('A'.upto('H').to_a[x] + 8.downto(1).to_a[y].to_s).to_sym] }
+  ]
 
   def self.to_name(y, x)
     NAME[[y, x]]
   end
 
+  # Chess Board model
   class Board
     attr_reader :cells
 
     def initialize
-      @cells = NAME.keys.collect do |y, x|
+      self.cells = NAME.keys.collect do |y, x|
         Cell.new y: y, x: x
       end
 
@@ -29,6 +33,7 @@ module Chess
     end
   end
 
+  # Each Cell of Chess Board
   class Cell
     attr_reader :name, :x, :y
     attr_accessor :value, :up, :down, :left, :right
@@ -58,7 +63,9 @@ module Chess
   end
 end
 
+# Binary Tree data structure
 module BinaryTree
+  # Node Stub
   class EmptyNode
     include Enumerable
 
@@ -105,6 +112,7 @@ module BinaryTree
 
   EMPTY_NODE = EmptyNode.new
 
+  # BinaryTree Node object
   class Node
     include Enumerable
 
@@ -141,11 +149,8 @@ module BinaryTree
     end
 
     def push(v)
-      if @value.nil?
-        @value = v
-        return self
-      end
-      # noinspection RubyCaseWithoutElseBlockInspection
+      return @value = v if @value.nil?
+
       case value <=> v
       when -1 then
         push_right(v)
@@ -160,7 +165,6 @@ module BinaryTree
     alias << push
 
     def include?(value)
-      # noinspection RubyCaseWithoutElseBlockInspection
       case @value <=> value
       when -1 then
         right.include?(value)
@@ -184,6 +188,11 @@ module BinaryTree
     end
 
     protected
+
+    def value=(v)
+      @value = v
+      self
+    end
 
     def push_left(v)
       @left.push(v) || (@left = Node.new(v))

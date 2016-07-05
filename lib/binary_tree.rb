@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+
+# Binary Tree Node object
 class Node
   attr_accessor :value, :up, :left, :right
 
@@ -62,17 +64,14 @@ end
 def breadth_first_search(target, tree)
   q = Queue.new
   q << tree
-  visited = []
 
+  visited = []
   until q.empty?
     node = q.shift
     visited << node
     return node if node.value == target
 
-    [node.up, node.left, node.right]
-      .compact
-      .reject { |n| visited.include? n }
-      .each { |n| q << n }
+    [node.up, node.left, node.right].compact.reject { |n| visited.include? n }.each { |n| q << n }
   end
 end
 
@@ -86,9 +85,7 @@ def depth_first_search(target, tree)
     return node if node.value == target
 
     visited << node
-    stack.concat [node.up, node.left, node.right]
-      .compact
-      .reject { |n| visited.include? n }
+    stack.concat [node.up, node.left, node.right].compact.reject { |n| visited.include? n }
   end
 end
 

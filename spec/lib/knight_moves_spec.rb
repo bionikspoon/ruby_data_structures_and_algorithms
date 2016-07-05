@@ -109,7 +109,7 @@ describe BinaryTree, :include_BinaryTree do
 
       context '100 items' do
         before { 100.times { |i| subject << i } }
-        its(:to_a) { should eq (0..99).to_a }
+        its(:to_a) { should eq((0..99).to_a) }
       end
 
       context '100 shuffled items' do
@@ -117,7 +117,7 @@ describe BinaryTree, :include_BinaryTree do
           shuffled = (0..99).to_a.shuffle
           shuffled.each { |i| subject << i }
         end
-        its(:to_a) { should eq (0..99).to_a }
+        its(:to_a) { should eq((0..99).to_a) }
         its('to_a.length') { should be 100 }
       end
     end
@@ -161,7 +161,9 @@ describe BinaryTree, :include_BinaryTree do
       include_context :numbers
 
       describe '#inject' do
-        it { expect(subject.inject(0) { |memo, value| memo + value }).to be 12 }
+        it do
+          expect(subject.inject(0) { |memo, value| memo + value }).to be 12
+        end
       end
 
       describe '#max' do
