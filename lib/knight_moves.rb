@@ -62,7 +62,7 @@ end
 module BinaryTree
 
   class EmptyNode
-    include Enumerable, BinaryTree
+    include Enumerable
 
     attr_reader :right, :value, :left, :up
 
@@ -192,5 +192,11 @@ module BinaryTree
     def is_leaf?
       @left.value.nil? or @right.value.nil?
     end
+  end
+
+  def BinaryTree.factory(items, shuffle: true)
+    tree = Node.new
+    (shuffle ? items.to_a.shuffle : items).each { |item| tree << item }
+    tree
   end
 end

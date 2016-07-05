@@ -189,4 +189,19 @@ describe BinaryTree, :include_BinaryTree do
       its(:to_s) { should eql '{#}' }
     end
   end
+
+  describe '#factory' do
+    context 'with shuffle' do
+      subject { BinaryTree.factory 0..99 }
+      its('to_a.length') { should be 100 }
+    end
+    context 'with out shuffle' do
+      subject { BinaryTree.factory 0..89, shuffle: false }
+      its('to_a.length') { should be 90 }
+    end
+    context 'with one item' do
+      subject { BinaryTree.factory [1] }
+      its(:to_a) { should eq [1] }
+    end
+  end
 end
