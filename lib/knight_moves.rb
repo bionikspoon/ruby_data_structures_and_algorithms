@@ -6,26 +6,28 @@ module Chess
   # Map Board Cells to Cell Name
   class Name
     include Singleton
+    class << self
+      def init
+        size = (0..7).to_a
+        col_names = 'A'.upto('H').to_a
+        row_names = 8.downto(1).to_a.map(&:to_s)
 
-    def initialize
-      size = (0..7).to_a
-      col_names = 'A'.upto('H').to_a
-      row_names = 8.downto(1).to_a.map(&:to_s)
+        Hash[size.product(size).collect { |y, x| [[y, x], (col_names[x] + row_names[y]).to_sym] }]
+      end
 
-      @@hash = Hash[size.product(size).collect { |y, x| [[y, x], (col_names[x] + row_names[y]).to_sym] }]
+      def includes?(k)
+        @@hash.key?(k)
+      end
+
+      def each
+        @@hash.keys
+      end
+
+      def get(y, x)
+        @@hash[[y, x]]
+      end
     end
-
-    def self.includes?(k)
-      @@hash.key?(k)
-    end
-
-    def self.each
-      @@hash.keys
-    end
-
-    def self.get(y, x)
-      @@hash[[y, x]]
-    end
+    @@hash = init
   end
 
   # Chess Board model
@@ -46,18 +48,22 @@ module Chess
   # EmptyCell placeholder
   class EmptyCell
     include Singleton
+    class << self
+      attr_reader :value
 
-    def to_s
-      '{##}'
+      def to_s
+        '{##}'
+      end
+
+      alias inspect to_s
     end
-
-    alias inspect to_s
   end
 
   # Each Cell of Chess Board
   class Cell
-    attr_reader :name, :x, :y
-    attr_accessor :value, :up, :down, :left, :right
+    attr_reader :name, :x, :y, :up, :down, :left, :right
+    attr_accessor :value
+
     DELTA = [[:@up, [-1, 0]],
              [:@right, [0, 1]],
              [:@down, [1, 0]],
@@ -68,10 +74,11 @@ module Chess
       @x = x
       @value = value
       @name = name || Name.get(@y, @x)
-      @up, @right, @down, @left = [EmptyCell.instance] * 4
+      @up, @right, @down, @left = [EmptyCell] * 4
     end
 
     def link(cells)
+      return false if [@up, @right, @down, @left].any?(&:value)
       DELTA
         .map { |ref, (y, x)| [ref, [@y + y, @x + x]] }
         .map { |ref, (y, x)| [ref, cells.find { |cell| cell.y == y && cell.x == x }] }
@@ -236,4 +243,3 @@ module BinaryTree
     tree
   end
 end
-Chess::Name.instance
