@@ -3,6 +3,11 @@
 
 From [The Odin Project](http://www.theodinproject.com/ruby-programming/data-structures-and-algorithms)
 
+[![Build Status][travis-badge]][travis-link]
+
+[travis-badge]:https://travis-ci.org/bionikspoon/ruby_data_structures_and_algorithms.svg?branch=master
+[travis-link]:https://travis-ci.org/bionikspoon/ruby_data_structures_and_algorithms
+
 ## Project 1: Searching Binary Trees
 
 ### Your Task
