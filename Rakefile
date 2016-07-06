@@ -9,4 +9,4 @@ RSpec::Core::RakeTask.new
 RuboCop::RakeTask.new
 Guard::RakeTask.new
 
-task :default => [:spec]
+task default: [:spec]

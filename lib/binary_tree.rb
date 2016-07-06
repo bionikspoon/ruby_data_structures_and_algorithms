@@ -61,9 +61,14 @@ def build_tree(data, shuffle: true)
   root
 end
 
-def breadth_first_search(target, tree)
+def queue_factory(tree = nil)
   q = Queue.new
-  q << tree
+  q << tree if tree
+  q
+end
+
+def breadth_first_search(target, tree)
+  q = queue_factory tree
 
   visited = []
   until q.empty?

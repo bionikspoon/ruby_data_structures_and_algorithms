@@ -2,34 +2,115 @@
 require 'knight_moves'
 
 describe Chess do
-  describe Chess::Board do
-    context Chess::Board.new do
-      its('cells.length') { should be 64 }
-    end
-  end
-
-  describe Chess::Cell do
-    describe '#initialize' do
-      subject { Chess::Cell.new y: 4, x: 3 }
-      its(:value) { should be_nil }
-      it { should respond_to :name, :x, :y, :value, :up, :down, :left, :right }
-      its(:name) { should eq :D4 }
-      its(:x) { should be 3 }
-      its(:y) { should be 4 }
-    end
-
-    describe '#inspect' do
-      subject { Chess::Cell.new y: 4, x: 3 }
-      its(:inspect) { should eq '{D4}' }
-    end
-  end
-
-  describe 'Chess::Names' do
+  describe 'Name' do
     subject { Chess::Name }
-    describe 'get' do
+
+    describe '#includes?' do
+      it { expect(subject.includes?([1, 2])).to be true }
+    end
+
+    describe '#each' do
+      subject { Chess::Name.each }
+      its(:size) { should be 64 }
+      it { should be_an_instance_of Enumerator }
+    end
+
+    describe '#get' do
       it { expect(subject.get(0, 0)).to eq :A8 }
       it { expect(subject.get(3, 4)).to eq :E5 }
       it { expect(subject.get(9, 9)).to be_nil }
+    end
+
+    describe 'adjacent' do
+      context 'with block' do
+        it 'should get adjacent cells' do
+          results = subject.adjacent(3, 4) { |name| name.to_s.downcase }
+          expect(results).to eq(up: 'e6', right: 'f5', down: 'e4', left: 'd5')
+        end
+        it 'should get adjacent cells' do
+          expect(subject.adjacent(0, 0, &:to_s)).to eq(right: 'B8', down: 'A7')
+        end
+      end
+
+      context 'with out block' do
+        it 'should get adjacent cells' do
+          expect(subject.adjacent(3, 4)).to eq(up: :E6, right: :F5, down: :E4, left: :D5)
+        end
+        it 'should get adjacent cells' do
+          expect(subject.adjacent(0, 0)).to eq(right: :B8, down: :A7)
+        end
+      end
+    end
+  end
+
+  describe Chess::Board do
+    let(:board) { Chess::Board.new }
+
+    describe '#initialize' do
+      its('cells.length') { should be 64 }
+    end
+
+    describe '#get' do
+      context do
+        subject { board.get(x: 1, y: 1) }
+        its(:name) { should be :B7 }
+      end
+
+      context do
+        subject { board.get(x: 0, y: 0) }
+        its(:name) { should be :A8 }
+      end
+
+      context do
+        subject { board.get(name: :E3) }
+        its(:name) { should be :E3 }
+      end
+    end
+
+    describe 'traversing cells' do
+      subject { board.get(name: :D4) }
+      its('up.name') { should be :D5 }
+      its('up.up.name') { should be :D6 }
+      its('up.up.up.up.name') { should be :D8 }
+      its('up.up.up.up.left.name') { should be :C8 }
+      its('up.up.up.up.left.left.left.name') { should be :A8 }
+      its('up.up.up.up.left.left.left.left.name') { should be :** }
+    end
+  end
+
+  describe Chess::EmptyCell do
+    subject { Chess::EmptyCell }
+    its(:value) { should be_nil }
+    its(:name) { should be :** }
+    its(:to_s) { should be '{**}' }
+  end
+
+  describe Chess::Cell do
+    let(:cell) { Chess::Cell.new y: 4, x: 3 }
+    describe '#initialize' do
+      subject { cell }
+      it { should respond_to :value, :name, :x, :y, :up, :down, :left, :right }
+      its(:value) { should be_nil }
+      its(:name) { should eq :D4 }
+      its(:x) { should be 3 }
+      its(:y) { should be 4 }
+      its(:up) { should be Chess::EmptyCell }
+      its(:right) { should be Chess::EmptyCell }
+      its(:down) { should be Chess::EmptyCell }
+      its(:left) { should be Chess::EmptyCell }
+    end
+
+    describe '#inspect' do
+      subject { cell }
+      its(:inspect) { should eq '{D4}' }
+    end
+    xdescribe '#link' do
+      let(:other) { Chess::Cell.new }
+      subject { cell }
+      it 'should link cell in direction' do
+        # cell.link(:up, other)
+        expect(subject.up).to be other
+      end
     end
   end
 end

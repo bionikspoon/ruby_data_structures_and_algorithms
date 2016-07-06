@@ -7,12 +7,17 @@ module Chess
   class Name
     include Singleton
     class << self
+      DELTA = { up: [-1, 0],
+                right: [0, 1],
+                down: [1, 0],
+                left: [0, -1] }.freeze
+
       def init
         size = (0..7).to_a
         col_names = 'A'.upto('H').to_a
         row_names = 8.downto(1).to_a.map(&:to_s)
 
-        Hash[size.product(size).collect { |y, x| [[y, x], (col_names[x] + row_names[y]).to_sym] }]
+        @@hash = Hash[size.product(size).collect { |y, x| [[y, x], (col_names[x] + row_names[y]).to_sym] }]
       end
 
       def includes?(k)
@@ -20,14 +25,22 @@ module Chess
       end
 
       def each
-        @@hash.keys
+        @@hash.each_key
       end
 
       def get(y, x)
         @@hash[[y, x]]
       end
+
+      def adjacent(cell_y, cell_x)
+        DELTA
+          .collect { |k, (y, x)| [k, get(y + cell_y, x + cell_x)] }
+          .reject { |_, v| v.nil? }
+          .collect { |k, name| [k, block_given? ? yield(name) : name] }
+          .to_h
+      end
     end
-    @@hash = init
+    init
   end
 
   # Chess Board model
@@ -35,13 +48,35 @@ module Chess
     attr_reader :cells
 
     def initialize
-      @cells = Name.each.collect { |y, x| Cell.new y: y, x: x }.tap do |cells|
-        cells.each { |cell| cell.link cells }
-      end
+      super
+      self.cells = Name.each.collect { |y, x| Cell.new y: y, x: x }
     end
 
-    def find(y, x)
-      @cells.find { |cell| cell.y == y || cell.x == x }
+    def get(y: nil, x: nil, name: nil)
+      name = Name.get(y, x) if name.nil?
+      return false if name.nil?
+      @cells.find { |cell| cell.name == name }
+    end
+
+    protected
+
+    def cells=(cells)
+      @cells = cells
+      @cells.each(&:link.with(self))
+
+      # @cells.each do |cell|
+      #   Name
+      #     .adjacent(cell.y, cell.x) { |name| get(name: name) }
+      #     .each { |args| cell.link(*args) }
+      # end
+      # @cells
+      #   .collect { |cell| [cell, Name.adjacent(cell.y, cell.x)] }
+      #   .collect do |cell, moves|
+      #   moves.collect { |direction, name| [direction, get(name: name)] }
+      #     .tap { |all| puts all.to_s }
+      #   [cell, moves.map { |move| get(name: move) }]
+      # end
+      # # .tap { |all| puts all.collect(&:to_s) }
     end
   end
 
@@ -51,12 +86,17 @@ module Chess
     class << self
       attr_reader :value
 
+      def name
+        :**
+      end
+
       def to_s
-        '{##}'
+        '{**}'
       end
 
       alias inspect to_s
     end
+    instance
   end
 
   # Each Cell of Chess Board
@@ -77,11 +117,15 @@ module Chess
       @up, @right, @down, @left = [EmptyCell] * 4
     end
 
-    def link(cells)
+    # def link(direction, cell)
+    #   puts :a + :b
+    # end
+
+    def link(board)
       return false if [@up, @right, @down, @left].any?(&:value)
       DELTA
         .map { |ref, (y, x)| [ref, [@y + y, @x + x]] }
-        .map { |ref, (y, x)| [ref, cells.find { |cell| cell.y == y && cell.x == x }] }
+        .map { |ref, (y, x)| [ref, board.get(y: y, x: x) || nil] }
         .reject { |_, cell| cell.nil? }
         .map { |ref, cell| instance_variable_set(ref, cell) }
     end
@@ -244,5 +288,13 @@ module BinaryTree
       tree << item
     end
     tree
+  end
+end
+
+# Patch Symbol
+class Symbol
+  # Source: https://stackoverflow.com/questions/23695653/can-you-supply-arguments-to-the-mapmethod-syntax-in-ruby
+  def with(*args, &block)
+    ->(caller, *rest) { caller.send(self, *rest, *args, &block) }
   end
 end
