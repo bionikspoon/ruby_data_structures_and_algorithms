@@ -6,3 +6,6 @@ Metrics/LineLength:
 
 Style/SingleLineBlockParams:
     Enabled: false
+
+Style/ClassVars:
+    Enabled: false

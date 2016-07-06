@@ -1,13 +1,31 @@
 # frozen_string_literal: true
+require 'singleton'
+
 # Chess Board and components
 module Chess
-  DIM_X, DIM_Y = [(0..7).to_a] * 2
-  NAME = Hash[
-    DIM_Y.product(DIM_X).collect { |y, x| [[y, x], ('A'.upto('H').to_a[x] + 8.downto(1).to_a[y].to_s).to_sym] }
-  ]
+  # Map Board Cells to Cell Name
+  class Name
+    include Singleton
 
-  def self.to_name(y, x)
-    NAME[[y, x]]
+    def initialize
+      size = (0..7).to_a
+      col_names = 'A'.upto('H').to_a
+      row_names = 8.downto(1).to_a.map(&:to_s)
+
+      @@hash = Hash[size.product(size).collect { |y, x| [[y, x], (col_names[x] + row_names[y]).to_sym] }]
+    end
+
+    def self.includes?(k)
+      @@hash.key?(k)
+    end
+
+    def self.each
+      @@hash.keys
+    end
+
+    def self.get(y, x)
+      @@hash[[y, x]]
+    end
   end
 
   # Chess Board model
@@ -15,51 +33,57 @@ module Chess
     attr_reader :cells
 
     def initialize
-      self.cells = NAME.keys.collect do |y, x|
-        Cell.new y: y, x: x
-      end
-
-      @cells.each do |cell|
-        adjacent_cells = { 'up=': [cell.y - 1, cell.x],
-                           'right=': [cell.y, cell.x + 1],
-                           'down=': [cell.y + 1, cell.x],
-                           'left=': [cell.y, cell.x - 1] }
-        adjacent_cells
-          .collect { |k, v| [k, Chess.to_name(*v)] }
-          .reject { |_, v| v.nil? }
-          .collect { |k, v| [k, @cells.find { |c| c.name == v }] }
-          .each { |k, v| cell.send(k, v) }
+      @cells = Name.each.collect { |y, x| Cell.new y: y, x: x }.tap do |cells|
+        cells.each { |cell| cell.link cells }
       end
     end
+
+    def find(y, x)
+      @cells.find { |cell| cell.y == y || cell.x == x }
+    end
+  end
+
+  # EmptyCell placeholder
+  class EmptyCell
+    include Singleton
+
+    def to_s
+      '{##}'
+    end
+
+    alias inspect to_s
   end
 
   # Each Cell of Chess Board
   class Cell
     attr_reader :name, :x, :y
     attr_accessor :value, :up, :down, :left, :right
+    DELTA = [[:@up, [-1, 0]],
+             [:@right, [0, 1]],
+             [:@down, [1, 0]],
+             [:@left, [0, -1]]].freeze
 
     def initialize(y: nil, x: nil, name: nil, value: nil)
       @y = y
       @x = x
       @value = value
-      @name = name || Chess.to_name(@y, @x)
-      @up, @right, @down, @left = [nil] * 4
+      @name = name || Name.get(@y, @x)
+      @up, @right, @down, @left = [EmptyCell.instance] * 4
     end
 
-    def inspect
-      s = []
-      s << "*: #{self}"
-      s << "u: #{@up}" if @up
-      s << "r: #{@right}" if @right
-      s << "d: #{@down}" if @down
-      s << "l: #{@left}" if @left
-      "{#{s.join(', ')}}"
+    def link(cells)
+      DELTA
+        .map { |ref, (y, x)| [ref, [@y + y, @x + x]] }
+        .map { |ref, (y, x)| [ref, cells.find { |cell| cell.y == y && cell.x == x }] }
+        .reject { |_, cell| cell.nil? }
+        .map { |ref, cell| instance_variable_set(ref, cell) }
     end
 
     def to_s
-      value = @value ? ":{#{@value}" : nil
-      "<#{@name}#{value}>"
+      "{#{[@name, @value].compact.join(':')}}"
     end
+
+    alias inspect to_s
   end
 end
 
@@ -149,16 +173,16 @@ module BinaryTree
     end
 
     def push(v)
-      return @value = v if @value.nil?
+      return false if @value == v
 
-      case value <=> v
-      when -1 then
+      if @value.nil?
+        @value = v
+      elsif @value < v
         push_right(v)
-      when 1 then
+      else
         push_left(v)
-      when 0 then
-        false
       end
+
       self
     end
 
@@ -189,11 +213,6 @@ module BinaryTree
 
     protected
 
-    def value=(v)
-      @value = v
-      self
-    end
-
     def push_left(v)
       @left.push(v) || (@left = Node.new(v))
       self
@@ -217,3 +236,4 @@ module BinaryTree
     tree
   end
 end
+Chess::Name.instance

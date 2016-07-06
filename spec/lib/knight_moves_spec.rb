@@ -4,7 +4,7 @@ require 'knight_moves'
 describe Chess do
   describe Chess::Board do
     context Chess::Board.new do
-      its('cells.length') { should eq 64 }
+      its('cells.length') { should be 64 }
     end
   end
 
@@ -20,18 +20,17 @@ describe Chess do
 
     describe '#inspect' do
       subject { Chess::Cell.new y: 4, x: 3 }
-      its(:inspect) { should eq '{*: <D4>}' }
+      its(:inspect) { should eq '{D4}' }
     end
   end
 
-  describe Chess::NAME do
-    its([[0, 0]]) { should be :A8 }
-    its([[3, 4]]) { should be :E5 }
-    its([[9, 9]]) { should be_nil }
-  end
-
-  describe :TO_NAME do
-    it('should convert (y,x) to cell name') { expect(Chess.to_name(4, 3)).to be :D4 }
+  describe 'Chess::Names' do
+    subject { Chess::Name }
+    describe 'get' do
+      it { expect(subject.get(0, 0)).to eq :A8 }
+      it { expect(subject.get(3, 4)).to eq :E5 }
+      it { expect(subject.get(9, 9)).to be_nil }
+    end
   end
 end
 
