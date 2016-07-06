@@ -1,12 +1,12 @@
 # Projects: Basic Data Structures and Algorithms
 <!-- *Estimated Time: 6-10 hours* -->
 
-From [The Odin Project](http://www.theodinproject.com/ruby-programming/data-structures-and-algorithms)
+From [The Odin Project][odin-link]
 
 [![Build Status][travis-badge]][travis-link]
+[![Coverage Status][coveralls-badge]][coveralls-link]
 
-[travis-badge]:https://travis-ci.org/bionikspoon/ruby_data_structures_and_algorithms.svg?branch=master
-[travis-link]:https://travis-ci.org/bionikspoon/ruby_data_structures_and_algorithms
+
 
 ## Project 1: Searching Binary Trees
 
@@ -87,3 +87,11 @@ $ bundle exec rake spec
 ```sh
 $ bundle exec guard
 ```
+
+[odin-link]:http://www.theodinproject.com/ruby-programming/data-structures-and-algorithms
+
+[travis-badge]:https://travis-ci.org/bionikspoon/ruby_data_structures_and_algorithms.svg?branch=master
+[travis-link]:https://travis-ci.org/bionikspoon/ruby_data_structures_and_algorithms
+
+[coveralls-badge]:https://coveralls.io/repos/github/bionikspoon/ruby_data_structures_and_algorithms/badge.svg?branch=master
+[coveralls-link]:https://coveralls.io/github/bionikspoon/ruby_data_structures_and_algorithms?branch=master

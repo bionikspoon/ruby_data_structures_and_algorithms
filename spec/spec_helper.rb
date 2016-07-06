@@ -4,7 +4,9 @@ require 'bundler/setup'
 require 'simplecov'
 require 'rspec/its'
 require 'pry'
+require 'coveralls'
 
+gem 'coveralls', require: false
 SimpleCov.start
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|

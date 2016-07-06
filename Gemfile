@@ -11,3 +11,4 @@ gem 'pry'
 gem 'simplecov', require: false
 gem 'rubocop', require: false
 gem 'guard-rubocop'
+gem 'coveralls', require: false
