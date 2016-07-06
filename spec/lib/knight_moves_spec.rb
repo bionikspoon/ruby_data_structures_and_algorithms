@@ -177,10 +177,9 @@ describe BinaryTree, :include_BinaryTree do
     end
   end
 
-  describe BinaryTree::EmptyNode do
-    shared_context(:empty) { subject { BinaryTree::EMPTY_NODE } }
+  describe 'EmptyNode' do
+    subject { BinaryTree::EmptyNode }
     describe '#initialize' do
-      include_context :empty
       its(:value) { should be_nil }
       its(:left) { should be subject }
       its(:right) { should be subject }

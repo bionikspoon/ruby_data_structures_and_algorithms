@@ -98,61 +98,64 @@ end
 module BinaryTree
   # Node Stub
   class EmptyNode
-    include Enumerable
+    include Singleton
+    class << self
+      include Enumerable
 
-    attr_reader :right, :value, :left
+      attr_reader :right, :value, :left
 
-    def initialize(*)
-      @value = nil
-      @left = self
-      @right = self
+      def initialize(*)
+        @value = nil
+        @left = self
+        @right = self
+      end
+
+      def to_a
+        []
+      end
+
+      def push(*)
+        false
+      end
+
+      alias << push
+
+      def each
+      end
+
+      def each_node
+      end
+
+      def include?(*)
+        false
+      end
+
+      def inspect
+        '{#}'
+      end
+
+      def to_s
+        inspect
+      end
+
+      def leaf?
+        nil
+      end
     end
-
-    def to_a
-      []
-    end
-
-    def push(*)
-      false
-    end
-
-    alias << push
-
-    def each
-    end
-
-    def each_node
-    end
-
-    def include?(*)
-      false
-    end
-
-    def inspect
-      '{#}'
-    end
-
-    def to_s
-      inspect
-    end
-
-    def leaf?
-      nil
-    end
+    initialize
   end
-
-  EMPTY_NODE = EmptyNode.new
 
   # BinaryTree Node object
   class Node
     include Enumerable
 
-    attr_accessor :right, :value, :left
+    attr_accessor :value
+    attr_reader :left, :right
 
-    def initialize(value = nil, left: BinaryTree::EMPTY_NODE, right: BinaryTree::EMPTY_NODE)
+    def initialize(value = nil)
       @value = value
-      @left = left
-      @right = right
+      @left = EmptyNode
+      @right = EmptyNode
     end
 
     def each
