@@ -47,7 +47,16 @@ describe 'Binary Tree' do
         expect(@empty_node.leaf?).to be false
       end
     end
+
+    describe '#inspect' do
+      it { expect(@empty_node.inspect).to eq '{Node::nil:nil}' }
+    end
+
+    describe '#to_s' do
+      it { expect(@empty_node.to_s).to eq '{Node::}' }
+    end
   end
+
   describe '#build_tree' do
     before(:each) do
       @tree = build_tree [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324], shuffle: false

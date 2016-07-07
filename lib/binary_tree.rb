@@ -24,15 +24,11 @@ class Node
   end
 
   def inspect
-    value = @value ? "@value=#{@value}" : nil
-    up = @up ? "@up=<Node:#{@up.value}>" : nil
-    left = @left ? "@left=<Node:#{@left.value}>" : nil
-    right = @right ? "@right=<Node:#{@right.value}>" : nil
-    "<Node:#{[value, up, left, right].compact.join(',')}>"
+    "{Node:#{@value}:#{@left.inspect}:#{@right.inspect}}"
   end
 
   def to_s
-    inspect
+    "{Node::#{value}}"
   end
 
   protected
