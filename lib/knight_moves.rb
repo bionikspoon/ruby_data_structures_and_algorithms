@@ -37,7 +37,7 @@ module Chess
     def initialize
       super
 
-      @cells = Name.each.map { |(y, x), _name| Cell.new(y: y, x: x) }
+      @cells = BinaryTree.factory Name.each.map { |(y, x), _name| Cell.new(y: y, x: x) }
       link_cells
     end
 
@@ -111,6 +111,10 @@ module Chess
     end
 
     alias inspect to_s
+
+    def <=>(other)
+      @name <=> other.name
+    end
   end
 end
 
@@ -148,6 +152,10 @@ module BinaryTree
 
       def include?(*)
         false
+      end
+
+      def size
+        0
       end
 
       def inspect
@@ -207,7 +215,7 @@ module BinaryTree
 
       if @value.nil?
         @value = v
-      elsif @value < v
+      elsif (@value <=> v) < 0
         push_right(v)
       else
         push_left(v)
@@ -231,6 +239,10 @@ module BinaryTree
 
     def <=>(other)
       @value <=> other.value
+    end
+
+    def size
+      left.size + (@value.nil? ? 0 : 1) + right.size
     end
 
     def inspect

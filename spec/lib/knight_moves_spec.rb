@@ -26,7 +26,7 @@ describe 'Knights Moves' do
       let(:board) { Chess::Board.new }
 
       describe '#initialize' do
-        its('cells.length') { should be 64 }
+        its('cells.size') { should be 64 }
       end
 
       describe '#get' do
