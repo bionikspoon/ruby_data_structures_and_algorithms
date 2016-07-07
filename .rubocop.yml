@@ -12,3 +12,21 @@ Style/ClassVars:
 
 Style/CaseEquality:
     Enabled: false
+
+Style/AutoResourceCleanup:
+    Enabled: true
+
+Style/AutoResourceCleanup:
+    Enabled: true
+
+Style/CollectionMethods:
+    Enabled: true
+
+Style/Encoding:
+    Enabled: true
+
+Style/StringMethods:
+    Enabled: true
+
+Style/SymbolArray:
+    Enabled: true

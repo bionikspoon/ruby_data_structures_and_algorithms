@@ -221,9 +221,9 @@ describe BinaryTree, :include_BinaryTree do
     describe 'enum methods' do
       include_context :numbers
 
-      describe '#inject' do
+      describe '#reduce' do
         it do
-          expect(subject.inject(0) { |memo, value| memo + value }).to be 12
+          expect(subject.reduce(0) { |memo, value| memo + value }).to be 12
         end
       end
 

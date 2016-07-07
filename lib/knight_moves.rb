@@ -11,7 +11,7 @@ module Chess
         col_names = 'A'.upto('H').to_a
         row_names = 8.downto(1).to_a.map(&:to_s)
 
-        @@hash = Hash[size.product(size).collect { |y, x| [[y, x], (col_names[x] + row_names[y]).to_sym] }]
+        @@hash = Hash[size.product(size).map { |y, x| [[y, x], (col_names[x] + row_names[y]).to_sym] }]
       end
 
       def includes?(k)
@@ -42,7 +42,7 @@ module Chess
 
       @cells = Name
                .each
-               .collect { |(y, x), _name| [[y, x], Cell.new(y: y, x: x)] }
+               .map { |(y, x), _name| [[y, x], Cell.new(y: y, x: x)] }
                .to_h
                .tap(&method(:link))
                .values
@@ -61,7 +61,7 @@ module Chess
       end
 
       cells.each_value do |cell|
-        cell.set DELTA.each_key.collect { |sym| [sym, delta.call(cell, sym)] }.to_h
+        cell.set DELTA.each_key.map { |sym| [sym, delta.call(cell, sym)] }.to_h
       end
     end
   end

@@ -96,7 +96,7 @@ def dfs_rec(target, node, visited: [])
   [node.up, node.left, node.right]
     .compact
     .reject { |n| visited.include? n }
-    .collect { |n| dfs_rec(target, n, visited: visited) }
+    .map { |n| dfs_rec(target, n, visited: visited) }
     .reject(&:nil?)
     .first
 end
