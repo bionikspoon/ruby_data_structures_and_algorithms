@@ -20,27 +20,6 @@ describe Chess do
       it { expect(subject.get(3, 4)).to eq :E5 }
       it { expect(subject.get(9, 9)).to be_nil }
     end
-
-    describe 'adjacent' do
-      context 'with block' do
-        it 'should get adjacent cells' do
-          results = subject.adjacent(3, 4) { |name| name.to_s.downcase }
-          expect(results).to eq(up: 'e6', right: 'f5', down: 'e4', left: 'd5')
-        end
-        it 'should get adjacent cells' do
-          expect(subject.adjacent(0, 0, &:to_s)).to eq(right: 'B8', down: 'A7')
-        end
-      end
-
-      context 'with out block' do
-        it 'should get adjacent cells' do
-          expect(subject.adjacent(3, 4)).to eq(up: :E6, right: :F5, down: :E4, left: :D5)
-        end
-        it 'should get adjacent cells' do
-          expect(subject.adjacent(0, 0)).to eq(right: :B8, down: :A7)
-        end
-      end
-    end
   end
 
   describe Chess::Board do
@@ -104,11 +83,13 @@ describe Chess do
       subject { cell }
       its(:inspect) { should eq '{D4}' }
     end
-    xdescribe '#link' do
+
+    describe '#set' do
       let(:other) { Chess::Cell.new }
       subject { cell }
+
       it 'should link cell in direction' do
-        # cell.link(:up, other)
+        cell.set(up: other)
         expect(subject.up).to be other
       end
     end

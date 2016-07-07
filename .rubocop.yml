@@ -9,3 +9,6 @@ Style/SingleLineBlockParams:
 
 Style/ClassVars:
     Enabled: false
+
+Style/CaseEquality:
+    Enabled: false

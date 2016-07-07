@@ -1,17 +1,11 @@
 # frozen_string_literal: true
 require 'singleton'
-
 # Chess Board and components
 module Chess
   # Map Board Cells to Cell Name
   class Name
     include Singleton
     class << self
-      DELTA = { up: [-1, 0],
-                right: [0, 1],
-                down: [1, 0],
-                left: [0, -1] }.freeze
-
       def init
         size = (0..7).to_a
         col_names = 'A'.upto('H').to_a
@@ -25,19 +19,11 @@ module Chess
       end
 
       def each
-        @@hash.each_key
+        @@hash.each
       end
 
       def get(y, x)
         @@hash[[y, x]]
-      end
-
-      def adjacent(cell_y, cell_x)
-        DELTA
-          .collect { |k, (y, x)| [k, get(y + cell_y, x + cell_x)] }
-          .reject { |_, v| v.nil? }
-          .collect { |k, name| [k, block_given? ? yield(name) : name] }
-          .to_h
       end
     end
     init
@@ -46,10 +32,20 @@ module Chess
   # Chess Board model
   class Board
     attr_reader :cells
+    DELTA = { up: [-1, 0],
+              right: [0, 1],
+              down: [1, 0],
+              left: [0, -1] }.freeze
 
     def initialize
       super
-      self.cells = Name.each.collect { |y, x| Cell.new y: y, x: x }
+
+      @cells = Name
+               .each
+               .collect { |(y, x), _name| [[y, x], Cell.new(y: y, x: x)] }
+               .to_h
+               .tap(&method(:link))
+               .values
     end
 
     def get(y: nil, x: nil, name: nil)
@@ -58,25 +54,15 @@ module Chess
       @cells.find { |cell| cell.name == name }
     end
 
-    protected
+    def link(cells)
+      delta = lambda do |cell, sym|
+        y, x = DELTA[sym]
+        cells[[y + cell.y, x + cell.x]] || nil
+      end
 
-    def cells=(cells)
-      @cells = cells
-      @cells.each(&:link.with(self))
-
-      # @cells.each do |cell|
-      #   Name
-      #     .adjacent(cell.y, cell.x) { |name| get(name: name) }
-      #     .each { |args| cell.link(*args) }
-      # end
-      # @cells
-      #   .collect { |cell| [cell, Name.adjacent(cell.y, cell.x)] }
-      #   .collect do |cell, moves|
-      #   moves.collect { |direction, name| [direction, get(name: name)] }
-      #     .tap { |all| puts all.to_s }
-      #   [cell, moves.map { |move| get(name: move) }]
-      # end
-      # # .tap { |all| puts all.collect(&:to_s) }
+      cells.each_value do |cell|
+        cell.set DELTA.each_key.collect { |sym| [sym, delta.call(cell, sym)] }.to_h
+      end
     end
   end
 
@@ -104,11 +90,6 @@ module Chess
     attr_reader :name, :x, :y, :up, :down, :left, :right
     attr_accessor :value
 
-    DELTA = [[:@up, [-1, 0]],
-             [:@right, [0, 1]],
-             [:@down, [1, 0]],
-             [:@left, [0, -1]]].freeze
-
     def initialize(y: nil, x: nil, name: nil, value: nil)
       @y = y
       @x = x
@@ -117,17 +98,13 @@ module Chess
       @up, @right, @down, @left = [EmptyCell] * 4
     end
 
-    # def link(direction, cell)
-    #   puts :a + :b
-    # end
+    def set(up: nil, right: nil, down: nil, left: nil)
+      return if [@up, @down, @left, @right].all? { |cell| cell === EmptyCell }
 
-    def link(board)
-      return false if [@up, @right, @down, @left].any?(&:value)
-      DELTA
-        .map { |ref, (y, x)| [ref, [@y + y, @x + x]] }
-        .map { |ref, (y, x)| [ref, board.get(y: y, x: x) || nil] }
-        .reject { |_, cell| cell.nil? }
-        .map { |ref, cell| instance_variable_set(ref, cell) }
+      @up = up || @up
+      @right = right || @right
+      @down = down || @down
+      @left = left || @left
     end
 
     def to_s
