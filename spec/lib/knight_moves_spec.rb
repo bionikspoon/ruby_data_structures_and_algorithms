@@ -122,9 +122,19 @@ describe Chess do
       let(:other) { Chess::Cell.new }
       subject { cell }
 
-      it 'should link cell in direction' do
-        cell.set(up: other)
-        expect(subject.up).to be other
+      context 'called once' do
+        before { cell.set(up: other) }
+        its(:up) { should be other }
+        its(:down) { should be Chess::EmptyCell }
+      end
+
+      context 'called twice' do
+        before do
+          cell.set(up: other)
+          cell.set(up: Chess::Cell.new, down: Chess::Cell.new)
+        end
+        its(:up) { should be other }
+        its(:down) { should be Chess::EmptyCell }
       end
     end
   end
