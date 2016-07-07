@@ -321,4 +321,15 @@ describe 'Knights Moves' do
       end
     end
   end
+
+  describe Enumerable do
+    describe 'to_bin' do
+      subject { (1..5).to_bin }
+
+      it { should be_an_instance_of BinaryTree::Node }
+      its(:value) { should be 1 }
+      its('right.value') { should be 2 }
+      its('left.value') { should be_nil }
+    end
+  end
 end

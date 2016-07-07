@@ -37,7 +37,7 @@ module Chess
     def initialize
       super
 
-      @cells = BinaryTree.factory Name.each.map { |(y, x), _name| Cell.new(y: y, x: x) }
+      @cells = Name.each.map { |(y, x), _name| Cell.new(y: y, x: x) }.to_bin
       link_cells
     end
 
@@ -275,6 +275,15 @@ module BinaryTree
     (shuffle ? items.to_a.shuffle : items).each do |item|
       tree << item
     end
+    tree
+  end
+end
+
+# Patch Enumerable with #to_bin
+module Enumerable
+  def to_bin
+    tree = BinaryTree::Node.new
+    each { |item| tree << item }
     tree
   end
 end
