@@ -32,20 +32,13 @@ module Chess
   # Chess Board model
   class Board
     attr_reader :cells
-    DELTA = { up: [-1, 0],
-              right: [0, 1],
-              down: [1, 0],
-              left: [0, -1] }.freeze
+    DELTA = { up: { y: -1 }, right: { x: 1 }, down: { y: -1 }, left: { x: -1 } }.freeze
 
     def initialize
       super
 
-      @cells = Name
-               .each
-               .map { |(y, x), _name| [[y, x], Cell.new(y: y, x: x)] }
-               .to_h
-               .tap(&method(:link))
-               .values
+      @cells = Name.each.map { |(y, x), _name| Cell.new(y: y, x: x) }
+      link_cells
     end
 
     def get(y: nil, x: nil, name: nil)
@@ -54,14 +47,20 @@ module Chess
       @cells.find { |cell| cell.name == name }
     end
 
-    def link(cells)
-      delta = lambda do |cell, sym|
-        y, x = DELTA[sym]
-        cells[[y + cell.y, x + cell.x]] || nil
-      end
+    def delta(cell, y: 0, x: 0, sym: nil)
+      return delta(cell, **DELTA[sym]) if sym
+      get(y: cell.y + y, x: cell.x + x) || EmptyCell
+    end
 
-      cells.each_value do |cell|
-        cell.set DELTA.each_key.map { |sym| [sym, delta.call(cell, sym)] }.to_h
+    protected
+
+    def link_cells
+      # for each cell ...
+      @cells.each do |cell|
+        # create a k,v hash where key = direction, value = adjacent cell
+        DELTA
+          .each_key.map { |sym| [sym, delta(cell, sym: sym)] }.to_h
+          .tap { |links| cell.set links } # and pass the results to cell.set
       end
     end
   end
@@ -98,13 +97,13 @@ module Chess
       @up, @right, @down, @left = [EmptyCell] * 4
     end
 
-    def set(up: nil, right: nil, down: nil, left: nil)
-      return if [@up, @down, @left, @right].all? { |cell| cell === EmptyCell }
+    def set(up: EmptyCell, right: EmptyCell, down: EmptyCell, left: EmptyCell)
+      return unless [@up, @down, @left, @right].all? { |cell| cell == EmptyCell }
 
-      @up = up || @up
-      @right = right || @right
-      @down = down || @down
-      @left = left || @left
+      @up = up
+      @right = right
+      @down = down
+      @left = left
     end
 
     def to_s
@@ -265,13 +264,5 @@ module BinaryTree
       tree << item
     end
     tree
-  end
-end
-
-# Patch Symbol
-class Symbol
-  # Source: https://stackoverflow.com/questions/23695653/can-you-supply-arguments-to-the-mapmethod-syntax-in-ruby
-  def with(*args, &block)
-    ->(caller, *rest) { caller.send(self, *rest, *args, &block) }
   end
 end

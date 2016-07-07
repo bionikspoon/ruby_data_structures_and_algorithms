@@ -46,6 +46,40 @@ describe Chess do
       end
     end
 
+    describe '#delta' do
+      let(:cell) { board.get name: :D4 }
+
+      context do
+        subject { board.delta cell, y: -2, x: -1 }
+        its(:name) { should be :C6 }
+      end
+
+      context do
+        subject { board.delta cell, y: -2, x: 1 }
+        its(:name) { should be :E6 }
+      end
+
+      context do
+        subject { board.delta cell, y: 2, x: -1 }
+        its(:name) { should be :C2 }
+      end
+
+      context do
+        subject { board.delta cell, y: -4, x: -3 }
+        its(:name) { should be :A8 }
+      end
+
+      context 'out of bounds' do
+        subject { board.delta cell, y: -4, x: -4 }
+        its(:name) { should be :** }
+      end
+
+      context '0, 0' do
+        subject { board.delta cell }
+        it { should be cell }
+      end
+    end
+
     describe 'traversing cells' do
       subject { board.get(name: :D4) }
       its('up.name') { should be :D5 }
