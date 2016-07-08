@@ -46,6 +46,22 @@ describe 'Knights Moves' do
         end
       end
 
+      describe '#find' do
+        subject { board.find { |cell| cell.y === 0 && cell.x === 0 } }
+        its(:name) { should be :A8 }
+      end
+
+      describe '#set' do
+        let(:board) { Chess::Board.new }
+        let(:knight) { Chess::Knight.new board }
+
+        context do
+          before { board.set :A8, knight }
+          subject { board.get(name: :A8) }
+          its(:value) { should be knight }
+        end
+      end
+
       describe '#delta' do
         let(:cell) { board.get name: :D4 }
 
@@ -135,6 +151,78 @@ describe 'Knights Moves' do
           end
           its(:up) { should be other }
           its(:down) { should be Chess::EmptyCell }
+        end
+      end
+    end
+
+    describe Chess::Piece do
+    end
+
+    describe Chess::Knight do
+      let(:board) { Chess::Board.new }
+      let(:knight) { Chess::Knight.new board }
+      subject { knight }
+
+      describe '#initialize' do
+        its(:name) { should be :N }
+      end
+
+      describe '#cell' do
+        context do
+          before { board.set :D4, knight }
+          let(:cell) { board.get(name: :D4) }
+          its(:cell) { should be cell }
+        end
+        context do
+          before { board.set :A8, knight }
+          let(:cell) { board.get(name: :A8) }
+          its(:cell) { should be cell }
+        end
+      end
+
+      describe '#move' do
+        before { board.set :D4, knight }
+        subject { knight }
+
+        context 'legal move' do
+          let!(:move) { knight.move(:B3) }
+          it { expect(move).to be true }
+          its('cell.name') { should be :B3 }
+          it { expect(board.get(name: :D4).value).not_to be knight }
+        end
+        context 'illegal move' do
+          let!(:move) { knight.move(:B4) }
+          it { expect(move).to be false }
+          its('cell.name') { should be :D4 }
+          it { expect(board.get(name: :B4).value).not_to be knight }
+        end
+
+        context 'illegal move with force' do
+          let!(:move) { knight.move(:B4, force: true) }
+          it { expect(move).to be true }
+          its('cell.name') { should be :B4 }
+          it { expect(board.get(name: :D4).value).not_to be knight }
+        end
+
+        context 'same cell move with force' do
+          let!(:move) { knight.move(:D4, force: true) }
+          it { expect(move).to be true }
+          its('cell.name') { should be :D4 }
+          it { expect(board.get(name: :D4).value).to be knight }
+        end
+      end
+
+      describe '#possible_moves' do
+        context 'with no conflicts' do
+          before { board.set :D4, knight }
+          subject { knight.possible_moves.map(&:name) }
+          it { should eq %i(B3 B5 C2 C6 E2 E6 F3 F5) }
+        end
+
+        context 'with conflicts' do
+          before { board.set :A8, knight }
+          subject { knight.possible_moves.map(&:name) }
+          it { should eq %i(B6 C7) }
         end
       end
     end
@@ -330,6 +418,18 @@ describe 'Knights Moves' do
       its(:value) { should be 1 }
       its('right.value') { should be 2 }
       its('left.value') { should be_nil }
+    end
+  end
+
+  describe '#knight_moves' do
+    it 'should get an array of moves to target' do
+      expect(knight_moves([0, 0], [1, 2])).to eq [[0, 0], [1, 2]]
+    end
+    it 'should get an array of moves to target' do
+      expect(knight_moves([0, 0], [3, 3])).to eq [[0, 0], [2, 1], [3, 3]]
+    end
+    it 'should get an array of moves to target' do
+      expect(knight_moves([3, 3], [0, 0])).to eq [[3, 3], [2, 1], [0, 0]]
     end
   end
 end

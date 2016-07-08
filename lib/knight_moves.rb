@@ -47,6 +47,15 @@ module Chess
       @cells.find { |cell| cell.name == name }
     end
 
+    def find
+      @cells.find { |cell| yield cell }
+    end
+
+    def set(name, value = nil)
+      cell = get(name: name)
+      cell.value = value
+    end
+
     def delta(cell, y: 0, x: 0, sym: nil)
       return delta(cell, **DELTA[sym]) if sym
       get(y: cell.y + y, x: cell.x + x) || EmptyCell
@@ -55,12 +64,12 @@ module Chess
     protected
 
     def link_cells
-      # for each cell ...
+      # for each current ...
       @cells.each do |cell|
-        # create a k,v hash where key = direction, value = adjacent cell
+        # create a k,v hash where key = direction, value = adjacent current
         DELTA
           .each_key.map { |sym| [sym, delta(cell, sym: sym)] }.to_h
-          .tap { |links| cell.set links } # and pass the results to cell.set
+          .tap { |links| cell.set links } # and pass the results to current.set
       end
     end
   end
@@ -114,6 +123,39 @@ module Chess
 
     def <=>(other)
       @name <=> other.name
+    end
+  end
+
+  # Chess Piece Base
+  class Piece
+  end
+
+  # Chess Piece :: Knight
+  class Knight < Piece
+    attr_reader :name
+
+    def initialize(board)
+      @board = board
+      @name = :N
+    end
+
+    def cell
+      @board.find { |cell| cell.value === self }
+    end
+
+    def move(to, force: false)
+      return false unless force || possible_moves.map(&:name).include?(to)
+
+      @board.set(cell.name)
+      @board.set(to, self)
+      true
+    end
+
+    def possible_moves
+      cell = self.cell
+      [[1, -2], [-1, -2], [2, -1], [-2, -1], [2, 1], [-2, 1], [1, 2], [-1, 2]]
+        .map { |y, x| @board.delta cell, y: y, x: x }
+        .reject { |c| c.name === :** }
     end
   end
 end
@@ -286,4 +328,29 @@ module Enumerable
     each { |item| tree << item }
     tree
   end
+end
+
+def knight_moves(position, target)
+  position = Chess::Name.get(*position)
+  target = Chess::Name.get(*target)
+
+  board = Chess::Board.new
+  knight = Chess::Knight.new board
+  board.set(position, knight)
+
+  q = Queue.new
+  q.enq(knight.cell.name)
+  path = Hash.new { |h, k| h[k] = [] }
+  path[position] << position
+
+  until q.empty?
+    current = q.deq
+    knight.move(current, force: true)
+    knight.possible_moves.map(&:name).each do |node|
+      next unless path[node].empty?
+      path[node] += path[current] + [node]
+      q.enq(node)
+    end
+  end
+  path[target].map { |name| board.get(name: name) }.map { |cell| [cell.y, cell.x] }
 end
