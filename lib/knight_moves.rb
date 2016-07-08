@@ -330,27 +330,71 @@ module Enumerable
   end
 end
 
+# Collection of search classes
+module Search
+  # Breadth first search base class
+  class BreadthFirst
+    attr_writer :set_current, :adjacent
+
+    def initialize
+      @q = Queue.new
+      @path = Hash.new { |h, k| h[k] = [] }
+      @set_current = ->(_) {}
+      @adjacent = -> {}
+    end
+
+    def path(from, to)
+      enqueue from
+      until @q.empty?
+        current = dequeue.tap { |c| @set_current.call(c) }
+
+        @adjacent.call.select(&method(:untouched)).each { |node| enqueue node, current }
+      end
+
+      @path[to]
+    end
+
+    def untouched(node)
+      @path[node].empty?
+    end
+
+    def dequeue
+      @q.deq
+    end
+
+    def enqueue(node, current = nil)
+      @q.enq(node)
+      @path[node] += (@path[current] || []) + [node]
+    end
+  end
+
+  # Search Knight's moves
+  class KnightMoves < BreadthFirst
+    def initialize
+      super
+
+      @board = Chess::Board.new
+      @knight = Chess::Knight.new @board
+
+      @set_current = ->(current) { @knight.move(current, force: true) }
+      @adjacent = -> { @knight.possible_moves.map(&:name) }
+    end
+
+    def path(from, to)
+      @board.set(from, @knight)
+      super(from, to).map { |name| @board.get(name: name) }.map { |cell| [cell.y, cell.x] }
+    end
+
+    def self.path(from, to)
+      this = new
+      this.path(from, to)
+    end
+  end
+end
+
 def knight_moves(position, target)
   position = Chess::Name.get(*position)
   target = Chess::Name.get(*target)
 
-  board = Chess::Board.new
-  knight = Chess::Knight.new board
-  board.set(position, knight)
-
-  q = Queue.new
-  q.enq(knight.cell.name)
-  path = Hash.new { |h, k| h[k] = [] }
-  path[position] << position
-
-  until q.empty?
-    current = q.deq
-    knight.move(current, force: true)
-    knight.possible_moves.map(&:name).each do |node|
-      next unless path[node].empty?
-      path[node] += path[current] + [node]
-      q.enq(node)
-    end
-  end
-  path[target].map { |name| board.get(name: name) }.map { |cell| [cell.y, cell.x] }
+  Search::KnightMoves.path(position, target)
 end
